@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartExpense - Expense Tracking System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar" id="navbar" style="display: none;">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-wallet"></i>
+                <span>SmartExpense</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#" onclick="showDashboard()"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#" onclick="showAddExpense()"><i class="fas fa-plus-circle"></i> Add Expense</a></li>
+                <li><a href="#" onclick="showSetLimits()"><i class="fas fa-chart-line"></i> Set Limits</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+            <div class="theme-toggle">
+                <i class="fas fa-moon" id="theme-icon" onclick="toggleTheme()"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="page active">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <i class="fas fa-wallet"></i>
+                    <h1>SmartExpense</h1>
+                    <p>Track your expenses smartly</p>
+                </div>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="#" onclick="showRegistration()">Create Account</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Page -->
+    <div id="registrationPage" class="page">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <i class="fas fa-user-plus"></i>
+                    <h1>Create Account</h1>
+                    <p>Join SmartExpense today</p>
+                </div>
+                <form id="registrationForm" onsubmit="handleRegistration(event)">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Full Name</label>
+                        <input type="text" id="regFullName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email (Username)</label>
+                        <input type="email" id="regEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" id="regPassword" placeholder="Create a password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Confirm Password</label>
+                        <input type="password" id="regConfirmPassword" placeholder="Confirm your password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Register
+                    </button>
+                </form>
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboardPage" class="page">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1 id="greetingMessage">Welcome!</h1>
+                <div class="filter-controls">
+                    <select id="timeFilter" onchange="applyFilter()">
+                        <option value="all">All Time</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="card">
+                    <div class="card-icon total">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Total Expenses</h3>
+                        <p class="amount" id="totalExpenses">₹0</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon min">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Minimum</h3>
+                        <p class="amount" id="minExpense">₹0</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon max">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Maximum</h3>
+                        <p class="amount" id="maxExpense">₹0</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon avg">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Average</h3>
+                        <p class="amount" id="avgExpense">₹0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="chart-section">
+                <div class="chart-card">
+                    <h2>Category-wise Spending</h2>
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Category Limits Progress -->
+            <div class="limits-section">
+                <h2>Category Limits</h2>
+                <div id="categoryLimitsDisplay"></div>
+            </div>
+
+            <!-- Expenses Table -->
+            <div class="expenses-section">
+                <div class="section-header">
+                    <h2>Recent Expenses</h2>
+                    <button class="btn btn-primary" onclick="showAddExpense()">
+                        <i class="fas fa-plus"></i> Add Expense
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="expensesTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Amount</th>
+                                <th>Category</th>
+                                <th>Notes</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesTableBody">
+                            <tr>
+                                <td colspan="6" class="no-data">No expenses found. Add your first expense!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div id="addExpenseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Add New Expense</h2>
+                <span class="close" onclick="closeAddExpense()">&times;</span>
+            </div>
+            <form id="addExpenseForm" onsubmit="handleAddExpense(event)">
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Expense Title</label>
+                    <input type="text" id="expenseTitle" placeholder="e.g., Grocery Shopping" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-rupee-sign"></i> Amount</label>
+                    <input type="number" id="expenseAmount" placeholder="0" step="0.01" min="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-list"></i> Category</label>
+                    <select id="expenseCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="Food">Food</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-sticky-note"></i> Notes (Optional)</label>
+                    <textarea id="expenseNotes" placeholder="Add any additional notes..." rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddExpense()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Add Expense
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Set Limits Modal -->
+    <div id="setLimitsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-chart-line"></i> Set Category Limits</h2>
+                <span class="close" onclick="closeSetLimits()">&times;</span>
+            </div>
+            <form id="setLimitsForm" onsubmit="handleSetLimits(event)">
+                <p class="form-description">Set monthly spending limits for each category</p>
+                <div class="form-group">
+                    <label><i class="fas fa-utensils"></i> Food Limit</label>
+                    <input type="number" id="limitFood" placeholder="0" step="1" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-plane"></i> Travel Limit</label>
+                    <input type="number" id="limitTravel" placeholder="0" step="1" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-shopping-bag"></i> Shopping Limit</label>
+                    <input type="number" id="limitShopping" placeholder="0" step="1" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-file-invoice-dollar"></i> Bills Limit</label>
+                    <input type="number" id="limitBills" placeholder="0" step="1" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-ellipsis-h"></i> Other Limit</label>
+                    <input type="number" id="limitOther" placeholder="0" step="1" min="0" value="0">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeSetLimits()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Limits
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Footer -->
+    <footer id="footer" style="display: none;">
+        <div class="footer-content">
+            <p>&copy; 2025 SmartExpense. All rights reserved.</p>
+            <p>Contact: support@smartexpense.com</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
